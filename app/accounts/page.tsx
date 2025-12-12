@@ -44,6 +44,13 @@ export default function AccountsPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
+  /* Transfer State */
+  const [transferDrawerOpen, setTransferDrawerOpen] = useState(false);
+  const [transferFrom, setTransferFrom] = useState('');
+  const [transferTo, setTransferTo] = useState('');
+  const [transferAmount, setTransferAmount] = useState<number | ''>('');
+  const [transferType, setTransferType] = useState<'create' | 'transfer' | null>(null);
+
   const initials = useMemo(() => {
     if (!email) return 'UU';
     const prefix = email.split('@')[0] || email;
@@ -213,6 +220,64 @@ export default function AccountsPage() {
     );
   }
 
+
+  const openTransferDrawer = () => {
+    setTransferFrom('');
+    setTransferTo('');
+    setTransferAmount('');
+    setError('');
+
+    // Set default From/To if accounts available
+    const primary = accounts.find(a => a.status === 'primary') || accounts[0];
+    const secondary = accounts.find(a => a.id !== primary?.id);
+
+    if (primary) setTransferFrom(primary.id);
+    if (secondary) setTransferTo(secondary.id);
+    else if (accounts.length > 1 && primary) {
+      // Fallback to first non-primary
+      const other = accounts.find(a => a.id !== primary.id);
+      if (other) setTransferTo(other.id);
+    }
+
+    setTransferDrawerOpen(true);
+  };
+
+  const closeTransferDrawer = () => {
+    setTransferDrawerOpen(false);
+    setTransferFrom('');
+    setTransferTo('');
+    setTransferAmount('');
+  };
+
+  const handleTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionUserId) return;
+    if (transferFrom === transferTo) {
+      setError('Source and destination accounts cannot be the same.');
+      return;
+    }
+
+    setSaving(true);
+    setError('');
+
+    const { error } = await supabase.rpc('transfer_funds', {
+      p_source_account_id: transferFrom,
+      p_destination_account_id: transferTo,
+      p_amount: Number(transferAmount),
+    });
+
+    setSaving(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    closeTransferDrawer();
+    fetchAccounts(sessionUserId);
+  };
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -302,6 +367,12 @@ export default function AccountsPage() {
               <p className="text-sm text-gray-600">View, edit, or remove your accounts.</p>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={openTransferDrawer}
+                className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 mr-2"
+              >
+                Transfer Funds
+              </button>
               <button
                 onClick={() => sessionUserId && fetchAccounts(sessionUserId)}
                 className="text-sm text-green-700 hover:text-green-800 font-medium"
@@ -414,6 +485,7 @@ export default function AccountsPage() {
         </section>
       </main>
 
+      {/* CREATE Account Drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div
@@ -497,6 +569,102 @@ export default function AccountsPage() {
           </div>
         </div>
       )}
+
+      {/* TRANSFER Funds Drawer */}
+      {transferDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-black/30"
+            onClick={() => !saving && closeTransferDrawer()}
+            aria-hidden="true"
+          />
+          <div className="relative ml-auto h-full w-full max-w-md bg-white shadow-2xl p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Transfer Funds</h2>
+              <button
+                onClick={closeTransferDrawer}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close"
+                disabled={saving}
+              >
+                ✕
+              </button>
+            </div>
+            <form className="space-y-4" onSubmit={handleTransfer}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">From Account</label>
+                  <select
+                    value={transferFrom}
+                    onChange={(e) => setTransferFrom(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                    required
+                  >
+                    <option value="" disabled>Select Source</option>
+                    {accounts.map(acc => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.account_name} (₹{acc.total_money.toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">To Account</label>
+                  <select
+                    value={transferTo}
+                    onChange={(e) => setTransferTo(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                    required
+                  >
+                    <option value="" disabled>Select Destination</option>
+                    {accounts.filter(a => a.id !== transferFrom).map(acc => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.account_name} (₹{acc.total_money.toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Amount</label>
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={transferAmount}
+                    onChange={(e) =>
+                      setTransferAmount(e.target.value === '' ? '' : Number(e.target.value))
+                    }
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Processing...' : 'Transfer'}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeTransferDrawer}
+                  disabled={saving}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
