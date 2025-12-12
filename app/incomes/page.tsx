@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
@@ -84,10 +84,6 @@ export default function IncomesPage() {
         load();
     }, [router, supabase]);
 
-    useEffect(() => {
-        if (!sessionUserId) return;
-        fetchIncomes(sessionUserId);
-    }, [sessionUserId, fromDate, toDate, accountFilter, categoryFilter]);
 
     const fetchAccounts = async (userId: string) => {
         const { data, error } = await supabase
@@ -126,7 +122,7 @@ export default function IncomesPage() {
         }
     };
 
-    const fetchIncomes = async (userId: string) => {
+    const fetchIncomes = useCallback(async (userId: string) => {
         setError('');
         const query = supabase
             .from('user_incomes')
@@ -161,7 +157,7 @@ export default function IncomesPage() {
             return;
         }
         setIncomes(data as Income[]);
-    };
+    }, [supabase, fromDate, toDate, accountFilter, categoryFilter]);
 
     const resetForm = () => {
         setAmountInput('');

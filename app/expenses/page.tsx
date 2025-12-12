@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
@@ -84,10 +84,7 @@ export default function ExpensesPage() {
     load();
   }, [router, supabase]);
 
-  useEffect(() => {
-    if (!sessionUserId) return;
-    fetchExpenses(sessionUserId);
-  }, [sessionUserId, fromDate, toDate, accountFilter, categoryFilter]);
+
 
   const fetchAccounts = async (userId: string) => {
     const { data, error } = await supabase
@@ -126,7 +123,7 @@ export default function ExpensesPage() {
     }
   };
 
-  const fetchExpenses = async (userId: string) => {
+  const fetchExpenses = useCallback(async (userId: string) => {
     setError('');
     const query = supabase
       .from('user_expenses')
@@ -161,7 +158,12 @@ export default function ExpensesPage() {
       return;
     }
     setExpenses(data as Expense[]);
-  };
+  }, [supabase, fromDate, toDate, accountFilter, categoryFilter]);
+
+  useEffect(() => {
+    if (!sessionUserId) return;
+    fetchExpenses(sessionUserId);
+  }, [sessionUserId, fetchExpenses]);
 
   const resetForm = () => {
     setAmountInput('');

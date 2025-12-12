@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
 
@@ -50,6 +50,24 @@ export default function AccountsPage() {
     return prefix.slice(0, 2).toUpperCase();
   }, [email]);
 
+
+
+  const fetchAccounts = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_accounts')
+      .select('id, account_name, total_money, status')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    setAccounts(data as Account[]);
+    setError('');
+  }, [supabase]);
+
   useEffect(() => {
     const load = async () => {
       const {
@@ -68,23 +86,7 @@ export default function AccountsPage() {
     };
 
     load();
-  }, [router, supabase]);
-
-  const fetchAccounts = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_accounts')
-      .select('id, account_name, total_money, status')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      setError(error.message);
-      return;
-    }
-
-    setAccounts(data as Account[]);
-    setError('');
-  };
+  }, [router, supabase, fetchAccounts]);
 
   const resetForm = () => {
     setNameInput('');

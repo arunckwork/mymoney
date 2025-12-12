@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
 
@@ -43,34 +43,11 @@ export default function UserDashboard() {
   const grandTotal = accounts.reduce((sum, acc) => sum + Number(acc.total_money), 0);
   const netBalance = totalIncome - totalExpense;
 
-  useEffect(() => {
-    const verifySession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
 
-      if (!session?.user) {
-        router.replace('/');
-        return;
-      }
 
-      setSessionUserId(session.user.id);
-      setEmail(session.user.email ?? null);
 
-      // Load accounts immediately as they don't depend on date filter
-      fetchAccounts(session.user.id);
-      setLoading(false);
-    };
 
-    verifySession();
-  }, [router, supabase]);
-
-  useEffect(() => {
-    if (!sessionUserId) return;
-    fetchSummaries(sessionUserId, selectedYear, selectedMonth);
-  }, [sessionUserId, selectedYear, selectedMonth]);
-
-  const fetchAccounts = async (userId: string) => {
+  const fetchAccounts = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from('user_accounts')
       .select('id, account_name, total_money, status')
@@ -80,9 +57,9 @@ export default function UserDashboard() {
     if (!error && data) {
       setAccounts(data as Account[]);
     }
-  };
+  }, [supabase]);
 
-  const fetchSummaries = async (userId: string, year: number, month: number) => {
+  const fetchSummaries = useCallback(async (userId: string, year: number, month: number) => {
     // Construct date range for the selected month
     const startDate = new Date(year, month, 1).toISOString().slice(0, 10);
     // Get last day of month
@@ -113,7 +90,34 @@ export default function UserDashboard() {
       const sum = incomes.reduce((acc, curr) => acc + Number(curr.amount), 0);
       setTotalIncome(sum);
     }
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    const verifySession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.user) {
+        router.replace('/');
+        return;
+      }
+
+      setSessionUserId(session.user.id);
+      setEmail(session.user.email ?? null);
+
+      // Load accounts immediately as they don't depend on date filter
+      fetchAccounts(session.user.id);
+      setLoading(false);
+    };
+
+    verifySession();
+  }, [router, supabase, fetchAccounts]);
+
+  useEffect(() => {
+    if (!sessionUserId) return;
+    fetchSummaries(sessionUserId, selectedYear, selectedMonth);
+  }, [sessionUserId, selectedYear, selectedMonth, fetchSummaries]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -281,7 +285,7 @@ export default function UserDashboard() {
           <div className="divide-y divide-gray-100">
             {accounts.length === 0 ? (
               <div className="p-6 text-center text-gray-500 text-sm">
-                No accounts found. Use "Manage Accounts" to add one.
+                No accounts found. Use &quot;Manage Accounts&quot; to add one.
               </div>
             ) : (
               accounts.map((acc) => (

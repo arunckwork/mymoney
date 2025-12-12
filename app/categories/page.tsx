@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
 
@@ -52,6 +52,24 @@ export default function CategoriesPage() {
     return prefix.slice(0, 2).toUpperCase();
   }, [email]);
 
+
+
+  const fetchCategories = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_income_expense_categories')
+      .select('id, category_name, status, category_type, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    setCategories(data as Category[]);
+    setError('');
+  }, [supabase]);
+
   useEffect(() => {
     const load = async () => {
       const {
@@ -70,23 +88,7 @@ export default function CategoriesPage() {
     };
 
     load();
-  }, [router, supabase]);
-
-  const fetchCategories = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_income_expense_categories')
-      .select('id, category_name, status, category_type, updated_at')
-      .eq('user_id', userId)
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      setError(error.message);
-      return;
-    }
-
-    setCategories(data as Category[]);
-    setError('');
-  };
+  }, [router, supabase, fetchCategories]);
 
   const resetForm = () => {
     setNameInput('');
