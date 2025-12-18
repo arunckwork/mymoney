@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
+import AppHeader from '@/components/AppHeader';
 
 type AccountStatus = 'primary' | 'secondary';
 
@@ -41,23 +42,12 @@ export default function AccountsPage() {
   const [editingStatus, setEditingStatus] = useState<AccountStatus>('secondary');
   const [saving, setSaving] = useState(false);
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
   /* Transfer State */
   const [transferDrawerOpen, setTransferDrawerOpen] = useState(false);
   const [transferFrom, setTransferFrom] = useState('');
   const [transferTo, setTransferTo] = useState('');
   const [transferAmount, setTransferAmount] = useState<number | ''>('');
   const [transferType, setTransferType] = useState<'create' | 'transfer' | null>(null);
-
-  const initials = useMemo(() => {
-    if (!email) return 'UU';
-    const prefix = email.split('@')[0] || email;
-    return prefix.slice(0, 2).toUpperCase();
-  }, [email]);
-
-
 
   const fetchAccounts = useCallback(async (userId: string) => {
     const { data, error } = await supabase
@@ -194,21 +184,6 @@ export default function AccountsPage() {
     fetchAccounts(sessionUserId);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.replace('/');
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -280,93 +255,7 @@ export default function AccountsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-bold text-gray-900">Accounts</h1>
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setMenuOpen((open) => !open)}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors"
-                aria-haspopup="menu"
-                aria-expanded={menuOpen}
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white text-sm font-semibold">
-                  {initials}
-                </span>
-                <span className="text-xs text-gray-600">&#9662;</span>
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-52 rounded-lg border border-gray-200 bg-white shadow-lg py-2 z-10">
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      router.push('/dashboard');
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Dashboard
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      router.push('/accounts');
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Manage Accounts
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      router.push('/categories');
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Manage Categories
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      router.push('/expenses');
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Manage Expenses
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      router.push('/incomes');
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Manage Incomes
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      router.push('/lendings');
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Manage Lendings
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      handleLogout();
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <AppHeader pageTitle="Accounts" userEmail={email} />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
         <section className="bg-white rounded-lg shadow-sm p-6">

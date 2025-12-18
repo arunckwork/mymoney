@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
-
+import AppHeader from '@/components/AppHeader';
 
 type Account = {
     id: string;
@@ -43,10 +43,6 @@ export default function LendingsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // Menu State
-    const [menuOpen, setMenuOpen] = useState(false);
-    const menuRef = useRef<HTMLDivElement | null>(null);
-
     // Filter State
     const [filterStartDate, setFilterStartDate] = useState('');
     const [filterEndDate, setFilterEndDate] = useState('');
@@ -63,12 +59,6 @@ export default function LendingsPage() {
     const [settleModalOpen, setSettleModalOpen] = useState(false);
     const [selectedLending, setSelectedLending] = useState<Lending | null>(null);
     const [settleAmount, setSettleAmount] = useState<number | ''>('');
-
-    const initials = useMemo(() => {
-        if (!email) return 'UU';
-        const prefix = email.split('@')[0] || email;
-        return prefix.slice(0, 2).toUpperCase();
-    }, [email]);
 
     const fetchAccounts = useCallback(async (userId: string) => {
         const { data, error } = await supabase
@@ -200,17 +190,6 @@ export default function LendingsPage() {
         fetchAccounts(sessionUserId);
     };
 
-    // Close menus on click outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -224,93 +203,7 @@ export default function LendingsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <nav className="bg-white shadow-sm border-b border-gray-200">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <h1 className="text-xl font-bold text-gray-900">Lendings</h1>
-                        <div className="relative" ref={menuRef}>
-                            <button
-                                onClick={() => setMenuOpen((open) => !open)}
-                                className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors"
-                                aria-haspopup="menu"
-                                aria-expanded={menuOpen}
-                            >
-                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white text-sm font-semibold">
-                                    {initials}
-                                </span>
-                                <span className="text-xs text-gray-600">&#9662;</span>
-                            </button>
-                            {menuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-lg border border-gray-200 bg-white shadow-lg py-2 z-10">
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/dashboard');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Dashboard
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/accounts');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Manage Accounts
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/categories');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Manage Categories
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/expenses');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Manage Expenses
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/incomes');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Manage Incomes
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/lendings');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 bg-gray-50 font-semibold"
-                                    >
-                                        Manage Lendings
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            supabase.auth.signOut().then(() => router.replace('/'));
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Logout
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <AppHeader pageTitle="Lendings" userEmail={email} />
 
             <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
                 <section className="bg-white rounded-lg shadow-sm p-6">
@@ -319,30 +212,30 @@ export default function LendingsPage() {
                             <h2 className="text-lg font-semibold text-gray-900">Your Lendings</h2>
                             <p className="text-sm text-gray-600">
                                 Track money you have lent to others.
-                                <span className="ml-2 font-medium text-gray-900">
+                                <span className="block md:inline md:ml-2 font-medium text-gray-900 mt-1 md:mt-0">
                                     Total Outstanding: <span className="text-red-600">₹{lendings.reduce((sum, item) => sum + (item.amount - item.settled_amount), 0).toFixed(2)}</span>
                                 </span>
                             </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                             <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
                                 <input
                                     type="date"
                                     value={filterStartDate}
                                     onChange={(e) => setFilterStartDate(e.target.value)}
-                                    className="bg-transparent border-none text-sm text-gray-700 focus:ring-0 p-1"
+                                    className="bg-transparent border-none text-sm text-gray-700 focus:ring-0 p-1 w-full"
                                 />
                                 <span className="text-gray-400">-</span>
                                 <input
                                     type="date"
                                     value={filterEndDate}
                                     onChange={(e) => setFilterEndDate(e.target.value)}
-                                    className="bg-transparent border-none text-sm text-gray-700 focus:ring-0 p-1"
+                                    className="bg-transparent border-none text-sm text-gray-700 focus:ring-0 p-1 w-full"
                                 />
                             </div>
                             <button
                                 onClick={() => setDrawerOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                                className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
                                 aria-label="Add lending"
                             >
                                 + Add Lending
@@ -355,62 +248,118 @@ export default function LendingsPage() {
                             <p className="text-gray-500">No lendings records found.</p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead>
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {lendings.map((lending) => {
-                                        const remaining = lending.amount - lending.settled_amount;
-                                        return (
-                                            <tr key={lending.id}>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {new Date(lending.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">
-                                                    {lending.note || '-'}
-                                                    <div className="text-xs text-gray-400">from {lending.user_accounts?.account_name}</div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    ₹{lending.amount.toFixed(2)}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <span className={remaining > 0 ? "text-red-600 font-medium" : "text-green-600"}>
-                                                        ₹{remaining.toFixed(2)}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${lending.status === 'settled'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
-                                                        }`}>
-                                                        {lending.status === 'settled' ? 'Settled' : 'Unsettled'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    {lending.status !== 'settled' && (
-                                                        <button
-                                                            onClick={() => openSettleModal(lending)}
-                                                            className="text-blue-600 hover:text-blue-900"
-                                                        >
-                                                            Settle
-                                                        </button>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                        <>
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {lendings.map((lending) => {
+                                            const remaining = lending.amount - lending.settled_amount;
+                                            return (
+                                                <tr key={lending.id}>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {new Date(lending.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-500">
+                                                        {lending.note || '-'}
+                                                        <div className="text-xs text-gray-400">from {lending.user_accounts?.account_name}</div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        ₹{lending.amount.toFixed(2)}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        <span className={remaining > 0 ? "text-red-600 font-medium" : "text-green-600"}>
+                                                            ₹{remaining.toFixed(2)}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${lending.status === 'settled'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-yellow-100 text-yellow-800'
+                                                            }`}>
+                                                            {lending.status === 'settled' ? 'Settled' : 'Unsettled'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        {lending.status !== 'settled' && (
+                                                            <button
+                                                                onClick={() => openSettleModal(lending)}
+                                                                className="text-blue-600 hover:text-blue-900"
+                                                            >
+                                                                Settle
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-4">
+                                {lendings.map((lending) => {
+                                    const remaining = lending.amount - lending.settled_amount;
+                                    return (
+                                        <div key={lending.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">
+                                                        {new Date(lending.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        from {lending.user_accounts?.account_name}
+                                                    </p>
+                                                </div>
+                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${lending.status === 'settled'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-yellow-100 text-yellow-800'
+                                                    }`}>
+                                                    {lending.status === 'settled' ? 'Settled' : 'Unsettled'}
+                                                </span>
+                                            </div>
+
+                                            <div className="mb-3">
+                                                <p className="text-sm text-gray-700">{lending.note || 'No note'}</p>
+                                            </div>
+
+                                            <div className="flex justify-between items-end border-t border-gray-100 pt-3">
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Amount / Balance</p>
+                                                    <div className="flex items-baseline gap-2">
+                                                        <span className="text-sm font-medium text-gray-900">₹{lending.amount.toFixed(2)}</span>
+                                                        <span className="text-xs text-gray-400">/</span>
+                                                        <span className={`text-sm font-bold ${remaining > 0 ? "text-red-600" : "text-green-600"
+                                                            }`}>
+                                                            ₹{remaining.toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                {lending.status !== 'settled' && (
+                                                    <button
+                                                        onClick={() => openSettleModal(lending)}
+                                                        className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-md text-xs font-medium hover:bg-blue-100 transition-colors"
+                                                    >
+                                                        Settle
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
                     )}
                 </section>
             </main>
