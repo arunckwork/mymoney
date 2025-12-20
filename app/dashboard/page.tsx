@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
 import AppHeader from '@/components/AppHeader';
+import TopExpensesChart from '@/components/TopExpensesChart';
 
 type Account = { id: string; account_name: string; total_money: number; status: 'primary' | 'secondary' };
 
@@ -178,32 +179,46 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        {/* Accounts Summary */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="text-lg font-bold text-gray-900">Your Accounts</h3>
-            <span className="text-sm font-medium text-gray-500">
-              Total Assets: <span className="text-gray-900">₹{grandTotal.toFixed(2)}</span>
-            </span>
-          </div>
-          <div className="divide-y divide-gray-100">
-            {accounts.length === 0 ? (
-              <div className="p-6 text-center text-gray-500 text-sm">
-                No accounts found. Use &quot;Manage Accounts&quot; to add one.
-              </div>
-            ) : (
-              accounts.map((acc) => (
-                <div key={acc.id} className="p-4 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                  <div>
-                    <p className="font-semibold text-gray-900">{acc.account_name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{acc.status}</p>
-                  </div>
-                  <p className="font-mono font-medium text-gray-900">₹{Number(acc.total_money).toFixed(2)}</p>
+        {/* Charts and Accounts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Top Expenses Chart */}
+          {sessionUserId && (
+            <TopExpensesChart
+              userId={sessionUserId}
+              year={selectedYear}
+              month={selectedMonth}
+            />
+          )}
+
+          {/* Accounts Summary */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-96 flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0">
+              <h3 className="text-lg font-bold text-gray-900">Your Accounts</h3>
+              <span className="text-sm font-medium text-gray-500">
+                Total: <span className="text-gray-900">₹{grandTotal.toFixed(2)}</span>
+              </span>
+            </div>
+            <div className="divide-y divide-gray-100 overflow-y-auto flex-1">
+              {accounts.length === 0 ? (
+                <div className="p-6 text-center text-gray-500 text-sm">
+                  No accounts found. Use &quot;Manage Accounts&quot; to add one.
                 </div>
-              ))
-            )}
+              ) : (
+                accounts.map((acc) => (
+                  <div key={acc.id} className="p-4 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                    <div>
+                      <p className="font-semibold text-gray-900">{acc.account_name}</p>
+                      <p className="text-xs text-gray-500 capitalize">{acc.status}</p>
+                    </div>
+                    <p className="font-mono font-medium text-gray-900">₹{Number(acc.total_money).toFixed(2)}</p>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
+
+
 
       </main>
     </div>
