@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseBrowserClient } from '@/lib/supabase';
 import {
     BarChart,
     Bar,
@@ -35,14 +35,7 @@ type ChartData = {
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function TopExpensesChart({ userId, year, month }: TopExpensesChartProps) {
-    const supabase = useMemo(
-        () =>
-            createBrowserClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            ),
-        []
-    );
+    const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
     const [data, setData] = useState<ChartData[]>([]);
     const [loading, setLoading] = useState(true);

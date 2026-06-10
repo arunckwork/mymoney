@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseBrowserClient } from '@/lib/supabase';
 import AppHeader from '@/components/AppHeader';
 
 type CategoryStatus = 'active' | 'inactive';
@@ -17,14 +17,7 @@ type Category = {
 
 export default function CategoriesPage() {
   const router = useRouter();
-  const supabase = useMemo(
-    () =>
-      createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      ),
-    []
-  );
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [sessionUserId, setSessionUserId] = useState<string | null>(null);

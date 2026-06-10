@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:push": "supabase db push"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.15.0",
@@ -17,6 +19,8 @@
     "recharts": "^3.6.0"
   },
   "devDependencies": {
+    "pg": "^8.13.1",
+    "supabase": "^2.105.0",
     "@types/node": "^20.11.30",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",

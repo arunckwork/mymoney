@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseBrowserClient } from '@/lib/supabase';
 import AppHeader from '@/components/AppHeader';
 
 type Account = {
@@ -27,14 +27,7 @@ type Lending = {
 
 export default function LendingsPage() {
     const router = useRouter();
-    const supabase = useMemo(
-        () =>
-            createBrowserClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            ),
-        []
-    );
+    const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
     const [lendings, setLendings] = useState<Lending[]>([]);
     const [accounts, setAccounts] = useState<Account[]>([]);

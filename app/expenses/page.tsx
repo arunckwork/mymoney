@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseBrowserClient } from '@/lib/supabase';
 import AppHeader from '@/components/AppHeader';
 
 type Account = { id: string; account_name: string; total_money: number; status: 'primary' | 'secondary' };
@@ -21,14 +21,7 @@ type Expense = {
 
 export default function ExpensesPage() {
   const router = useRouter();
-  const supabase = useMemo(
-    () =>
-      createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      ),
-    []
-  );
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [sessionUserId, setSessionUserId] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
