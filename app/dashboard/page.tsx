@@ -185,9 +185,7 @@ export default function UserDashboard() {
             />
           )}
 
-          {/* Accounts Summary — superuser only */}
-          {sessionUserId === '8cbf6392-dee3-48eb-b31f-2d8d787659f0' && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-96 flex flex-col">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-96 flex flex-col">
               <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0">
                 <h3 className="text-lg font-bold text-gray-900">Your Accounts</h3>
                 <span className="text-sm font-medium text-gray-500">
@@ -212,7 +210,6 @@ export default function UserDashboard() {
                 )}
               </div>
             </div>
-          )}
         </div>
 
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase';
 import AppHeader from '@/components/AppHeader';
 
-const SUPER_USER_ID = '8cbf6392-dee3-48eb-b31f-2d8d787659f0';
+
 
 type ToastType = 'success' | 'error' | null;
 
@@ -46,11 +46,7 @@ export default function ChangePasswordPage() {
                 return;
             }
 
-            // Only the superuser is allowed on this page
-            if (session.user.id !== SUPER_USER_ID) {
-                router.replace('/dashboard');
-                return;
-            }
+
 
             setSessionUserId(session.user.id);
             setEmail(session.user.email ?? null);

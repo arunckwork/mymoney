@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase';
 
-const SUPER_USER_ID = '8cbf6392-dee3-48eb-b31f-2d8d787659f0';
+
 
 type AppHeaderProps = {
     pageTitle: string;
@@ -69,17 +69,15 @@ export default function AppHeader({ pageTitle, userEmail, userId }: AppHeaderPro
                                 >
                                     Dashboard
                                 </button>
-                                {userId === SUPER_USER_ID && (
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/accounts');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Manage Accounts
-                                    </button>
-                                )}
+                                <button
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push('/accounts');
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                    Manage Accounts
+                                </button>
                                 <button
                                     onClick={() => {
                                         setMenuOpen(false);
@@ -98,39 +96,33 @@ export default function AppHeader({ pageTitle, userEmail, userId }: AppHeaderPro
                                 >
                                     Manage Expenses
                                 </button>
-                                {userId === SUPER_USER_ID && (
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/incomes');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Manage Incomes
-                                    </button>
-                                )}
-                                {userId === SUPER_USER_ID && (
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/lendings');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Manage Lendings
-                                    </button>
-                                )}
-                                {userId === SUPER_USER_ID && (
-                                    <button
-                                        onClick={() => {
-                                            setMenuOpen(false);
-                                            router.push('/change-password');
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm text-indigo-600 font-medium hover:bg-indigo-50"
-                                    >
-                                        🔑 Change Password
-                                    </button>
-                                )}
+                                <button
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push('/incomes');
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                    Manage Incomes
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push('/lendings');
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                    Manage Lendings
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push('/change-password');
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-indigo-600 font-medium hover:bg-indigo-50"
+                                >
+                                    🔑 Change Password
+                                </button>
                                 <button
                                     onClick={() => {
                                         setMenuOpen(false);
