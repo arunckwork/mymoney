@@ -4,12 +4,15 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase';
 
+const SUPER_USER_ID = '8cbf6392-dee3-48eb-b31f-2d8d787659f0';
+
 type AppHeaderProps = {
     pageTitle: string;
     userEmail: string | null;
+    userId?: string | null;
 };
 
-export default function AppHeader({ pageTitle, userEmail }: AppHeaderProps) {
+export default function AppHeader({ pageTitle, userEmail, userId }: AppHeaderProps) {
     const router = useRouter();
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
@@ -111,6 +114,17 @@ export default function AppHeader({ pageTitle, userEmail }: AppHeaderProps) {
                                 >
                                     Manage Lendings
                                 </button>
+                                {userId === SUPER_USER_ID && (
+                                    <button
+                                        onClick={() => {
+                                            setMenuOpen(false);
+                                            router.push('/change-password');
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-indigo-600 font-medium hover:bg-indigo-50"
+                                    >
+                                        🔑 Change Password
+                                    </button>
+                                )}
                                 <button
                                     onClick={() => {
                                         setMenuOpen(false);

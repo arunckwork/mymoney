@@ -185,7 +185,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AppHeader pageTitle="Categories" userEmail={email} />
+      <AppHeader pageTitle="Categories" userEmail={email} userId={sessionUserId} />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <section className="bg-white rounded-lg shadow-sm p-6">

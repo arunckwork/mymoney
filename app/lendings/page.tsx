@@ -196,7 +196,7 @@ export default function LendingsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <AppHeader pageTitle="Lendings" userEmail={email} />
+            <AppHeader pageTitle="Lendings" userEmail={email} userId={sessionUserId} />
 
             <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
                 <section className="bg-white rounded-lg shadow-sm p-6">
