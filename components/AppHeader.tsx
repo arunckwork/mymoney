@@ -69,15 +69,17 @@ export default function AppHeader({ pageTitle, userEmail, userId }: AppHeaderPro
                                 >
                                     Dashboard
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        router.push('/accounts');
-                                    }}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                    Manage Accounts
-                                </button>
+                                {userId === SUPER_USER_ID && (
+                                    <button
+                                        onClick={() => {
+                                            setMenuOpen(false);
+                                            router.push('/accounts');
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Manage Accounts
+                                    </button>
+                                )}
                                 <button
                                     onClick={() => {
                                         setMenuOpen(false);
@@ -96,24 +98,28 @@ export default function AppHeader({ pageTitle, userEmail, userId }: AppHeaderPro
                                 >
                                     Manage Expenses
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        router.push('/incomes');
-                                    }}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                    Manage Incomes
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        router.push('/lendings');
-                                    }}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                    Manage Lendings
-                                </button>
+                                {userId === SUPER_USER_ID && (
+                                    <button
+                                        onClick={() => {
+                                            setMenuOpen(false);
+                                            router.push('/incomes');
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Manage Incomes
+                                    </button>
+                                )}
+                                {userId === SUPER_USER_ID && (
+                                    <button
+                                        onClick={() => {
+                                            setMenuOpen(false);
+                                            router.push('/lendings');
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Manage Lendings
+                                    </button>
+                                )}
                                 {userId === SUPER_USER_ID && (
                                     <button
                                         onClick={() => {

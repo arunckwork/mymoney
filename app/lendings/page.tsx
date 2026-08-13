@@ -108,6 +108,11 @@ export default function LendingsPage() {
                 return;
             }
 
+            if (session.user.id !== '8cbf6392-dee3-48eb-b31f-2d8d787659f0') {
+                router.replace('/dashboard');
+                return;
+            }
+
             setSessionUserId(session.user.id);
             setEmail(session.user.email ?? null);
             await Promise.all([
