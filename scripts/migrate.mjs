@@ -58,6 +58,7 @@ const migrationOrder = [
   '20251212153000_create_user_incomes.sql',
   '20251212180000_create_transfer_function.sql',
   '20251215120000_create_lendings.sql',
+  '20250610130000_enable_rls_policies.sql',
 ];
 const files = migrationOrder.filter((file) =>
   readdirSync(migrationsDir).includes(file)

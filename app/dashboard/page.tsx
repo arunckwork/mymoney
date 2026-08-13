@@ -112,6 +112,16 @@ export default function UserDashboard() {
     );
   }
 
+  const yesClick= async()=>{
+
+  const { data } = await supabase.auth.admin.updateUserById(
+  '8cbf6392-dee3-48eb-b31f-2d8d787659f0',
+  {
+    password: 'Arunck@2026'
+  }
+)
+}
+
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -133,6 +143,7 @@ export default function UserDashboard() {
             <p className="text-gray-500 text-sm">Summary for {months[selectedMonth]} {selectedYear}</p>
           </div>
           <div className="flex gap-2">
+             <button onClick={yesClick}>Yes</button>
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
